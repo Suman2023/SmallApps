@@ -43,6 +43,9 @@ dependencies:
   # Internet
   dio: ^4.0.6
 
+  # dependency injector
+  get_it: ^7.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
