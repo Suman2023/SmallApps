@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo/providers/bottom_navbar_provider.dart';
+import 'package:todo/views/add_todo.dart';
 import 'package:todo/views/dashboard_screen.dart';
 import 'package:todo/views/habits_screen.dart';
 import 'package:todo/views/home_screen.dart';
@@ -22,24 +23,19 @@ class MainScreen extends ConsumerWidget {
     final _addButtonVisible = ref.watch(addButtonProvider.state);
     return SafeArea(
       child: Scaffold(
-        floatingActionButton: _addButtonVisible.state
-            ? FloatingActionButton(
-                onPressed: () {
-                  // _addButtonVisible.state = false;
-
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10))),
-                      content: SingleChildScrollView(
-                          child: Container(
-                        height: 350,
-                      ))));
-                },
-                child: const Icon(Icons.add),
-              )
-            : null,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // _addButtonVisible.state = false
+            showModalBottomSheet(
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                context: context,
+                builder: (context) {
+                  return bottomSheet();
+                });
+          },
+          child: const Icon(Icons.add),
+        ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomNavigationBar(
           selectedItemColor: Colors.red,
@@ -65,5 +61,20 @@ class MainScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Widget bottomSheet() {
+    return DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.6,
+        maxChildSize: 0.8,
+        builder: ((context, scrollController) => Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(20))),
+              child: AddTodoScreen(),
+            )));
   }
 }

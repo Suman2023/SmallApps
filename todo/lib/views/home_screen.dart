@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo/providers/homescreen_providers.dart';
+import 'package:todo/providers/todo_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -104,16 +105,27 @@ class TasksView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: title == "Today"
-            ? 10
-            : title == "Upcoming"
-                ? 5
-                : 1,
-        itemBuilder: ((context, index) => taskCard()));
+    return Consumer(builder: (context, ref, child) {
+      final _getAllHabits = ref.watch(getAllTasksProvider);
+      return _getAllHabits.when(
+          data: (_data) => _data.isNotEmpty
+              ? ListView.builder(
+                  itemCount: _data.length,
+                  itemBuilder: ((context, index) =>
+                      taskCard(task: _data[index])))
+              : Center(
+                  child: Text("All DOne for the day"),
+                ),
+          error: (_, __) => Center(
+                child: Text("SOmething went wrong please retry"),
+              ),
+          loading: () => Center(
+                child: CircularProgressIndicator(),
+              ));
+    });
   }
 
-  Widget taskCard() {
+  Widget taskCard({required Map<String, String> task}) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -140,8 +152,8 @@ class TasksView extends StatelessWidget {
                 IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
               ],
             ),
-            const Text(
-              "Title",
+            Text(
+              task['habit_name'].toString(),
               style: TextStyle(fontSize: 24),
             ),
             SizedBox(height: 10),
@@ -170,8 +182,10 @@ class TasksView extends StatelessWidget {
 class StateChip extends StatelessWidget {
   final String title;
   final Color bgColor, textColor;
+  final BoxBorder? border;
   const StateChip(
       {Key? key,
+      this.border,
       required this.title,
       required this.bgColor,
       required this.textColor})
@@ -210,6 +224,7 @@ class StateChip extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: bgColor,
+              border: border,
               borderRadius: BorderRadius.circular(100),
             ),
             child: Center(
